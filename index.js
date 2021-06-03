@@ -90,8 +90,6 @@ async function startInstance() {
    console.log('Checking server readiness again...');
  }
  console.log('the server is ready');
- 
- res.status(200).send('Minecraft Server Started! You are now spending REAL MONEY!' );
 };
 
 client.login(process.env.TOKEN);
