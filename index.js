@@ -1,4 +1,8 @@
 const DiscordJS = require('discord.js');
+const Compute = require('@google-cloud/compute');
+const compute = new Compute();
+const zone = compute.zone('europe-north1-a');
+const vm = zone.vm('mc-server');
 require('dotenv').config();
 
 const guildId = '850018302650875905';
@@ -32,6 +36,7 @@ client.on('ready', async () => {
 
         switch (command) {
             case 'mcstart':
+                startInstance();
                 reply(interaction, 'Startar servern... Detta kan ta någon minut');
                 break;
         
@@ -51,5 +56,42 @@ function reply(interaction, response){
         }
     })
 }
+ 
+async function get_server_ip() {
+ return new Promise(function(resolve, reject) {
+   vm.getMetadata().then((data) => {
+     resolve(data[0].networkInterfaces[0].accessConfigs[0].natIP);
+   });
+ });
+}
+ 
+async function check_if_server_is_ready() {
+ const server_ip = await get_server_ip();
+ const ready = !!server_ip;
+ return ready
+}
+ 
+async function sleep(milliseconds) {
+ return new Promise(function(resolve, reject) {
+   setTimeout(resolve, milliseconds);
+ });
+}
+ 
+async function startInstance() {
+ // Start the VM
+ console.log('about to start a VM');
+ vm.start(function(err, operation, apiResponse) {
+   console.log('instance start successfully');
+ });
+ console.log('the server is starting');
+ while(!(await check_if_server_is_ready())) {
+   console.log('Server is not ready, waiting 1 second...');
+   await sleep(1000);
+   console.log('Checking server readiness again...');
+ }
+ console.log('the server is ready');
+ 
+ res.status(200).send('Minecraft Server Started! You are now spending REAL MONEY!' );
+};
 
 client.login(process.env.TOKEN);
