@@ -5,7 +5,6 @@ const zone = compute.zone('europe-north1-a');
 const vm = zone.vm('mc-server');
 require('dotenv').config();
 
-const guildId = '850018302650875905';
 const client = new DiscordJS.Client();
 
 function getApp(guildId) {
@@ -19,10 +18,10 @@ function getApp(guildId) {
 client.on('ready', async () => {
     console.log('The bot is ready');
 
-    const commands = await getApp(guildId).commands.get();
+    const commands = await getApp().commands.get();
     console.log(commands);
 
-    await getApp(guildId).commands.post({
+    await getApp().commands.post({
         data: {
             name: 'mcstart',
             description: 'Starta Minecraft-servern'
@@ -37,7 +36,7 @@ client.on('ready', async () => {
         switch (command) {
             case 'mcstart':
                 startInstance();
-                reply(interaction, 'Startar servern... Detta kan ta någon minut');
+                reply(interaction, `Startar servern... Detta kan ta någon minut. Använd adressen "${process.env.ADRESS}" för att ansluta`);
                 break;
         
             default:
